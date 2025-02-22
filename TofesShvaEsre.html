@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>טופס 17 - חישוב גימטריה</title>
+    <!-- Google Assistant Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: white;
+        color: black;
+        font-family: "Assistant", sans-serif;
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .background-numbers {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        overflow: hidden;
+      }
+      .glass-container {
+        width: 90%;
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        position: relative;
+        text-align: center;
+        transition: all 0.5s ease-in-out;
+        transform-origin: center;
+      }
+      .title {
+        font-size: 40px;
+        margin-top: 20px;
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 20px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      input {
+        width: 80%;
+        padding: 10px;
+        font-size: 18px;
+        direction: rtl;
+        font-family: "Assistant", sans-serif;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      button {
+        background-color: blue;
+        color: white;
+        font-size: 18px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.1s;
+        margin: 10px 0;
+        font-family: "Assistant", sans-serif;
+        font-weight: 600;
+      }
+      button:active {
+        transform: scale(0.95);
+      }
+      #result {
+        margin: 0;
+        font-size: 20px;
+        opacity: 0;
+        transition: all 0.5s ease-in-out;
+        max-height: 0;
+        overflow: hidden;
+        font-weight: 300;
+      }
+      #result.show {
+        opacity: 1;
+        margin: 20px 0;
+        max-height: 100px;
+      }
+      #charCount {
+        color: #666;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+      @keyframes moveNumbers {
+        0% {
+          transform: translateY(-10vh);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(110vh);
+          opacity: 0;
+        }
+      }
+      @keyframes pulseContainer {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .pulse {
+        animation: pulseContainer 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-numbers"></div>
+    <div class="glass-container" id="container">
+      <h1 class="title">טופס 17</h1>
+      <h2 class="subtitle">קהל קדוש, אנא הכניסו פסוק</h2>
+      <input
+        type="text"
+        id="inputText"
+        maxlength="60"
+        placeholder="הקלידו כאן..."
+      />
+      <p id="charCount">0/60</p>
+      <button onclick="calculateGematria()">חישוב גימטריה</button>
+      <p id="result"></p>
+    </div>
+    <script>
+      function generateBackgroundNumbers() {
+        const bg = document.querySelector(".background-numbers");
+        let html = "";
+        for (let i = 0; i < 50; i++) {
+          let size = Math.random() * 50 + 10;
+          let left = Math.random() * 100;
+          let duration = Math.random() * 20 + 3;
+          let delay = Math.random() * 5;
+          let color = `hsl(0, 0%, ${Math.random() * 50 + 30}%)`;
+          html += `<div style="position:absolute;font-size:${size}px;left:${left}vw;top:-10vh;color:${color};animation: moveNumbers ${duration}s linear ${delay}s infinite;">${
+            Math.random() > 0.5 ? "7" : "1"
+          }</div>`;
+        }
+        bg.innerHTML = html;
+      }
+      generateBackgroundNumbers();
+
+      document
+        .getElementById("inputText")
+        .addEventListener("input", function () {
+          // Allow Hebrew letters and spaces only
+          this.value = this.value.replace(/[^א-ת\s]/g, "");
+          document.getElementById(
+            "charCount"
+          ).innerText = `${this.value.length}/60`;
+        });
+
+      function calculateGematria() {
+        let inputElem = document.getElementById("inputText");
+        let input = inputElem.value;
+
+        // Remove spaces for validation, but keep original input with spaces
+        let cleanInput = input.replace(/[^א-ת\s]/g, "");
+        // Check if there are any non-Hebrew letters (excluding spaces)
+        if (!/^[א-ת\s]*$/.test(cleanInput)) {
+          document.getElementById("result").innerText =
+            "שגיאה: יש להזין רק אותיות בעברית";
+          return;
+        }
+
+        // Reset the input and counter
+        inputElem.value = "";
+        document.getElementById("charCount").innerText = "0/60";
+
+        let gematria = 0;
+        const gematriaValues = {
+          א: 1,
+          ב: 2,
+          ג: 3,
+          ד: 4,
+          ה: 5,
+          ו: 6,
+          ז: 7,
+          ח: 8,
+          ט: 9,
+          י: 10,
+          כ: 20,
+          ל: 30,
+          מ: 40,
+          נ: 50,
+          ס: 60,
+          ע: 70,
+          פ: 80,
+          צ: 90,
+          ק: 100,
+          ר: 200,
+          ש: 300,
+          ת: 400,
+        };
+
+        // Calculate gematria ignoring spaces
+        for (let char of cleanInput) {
+          if (char !== " ") {
+            // Skip spaces in calculation
+            gematria += gematriaValues[char] || 0;
+          }
+        }
+
+        let resultElem = document.getElementById("result");
+        let container = document.getElementById("container");
+
+        // Add pulse animation class
+        container.classList.add("pulse");
+
+        // Remove the pulse class after animation completes
+        setTimeout(() => {
+          container.classList.remove("pulse");
+        }, 500);
+
+        if (gematria % 17 === 0) {
+          resultElem.innerText = `"${input}" מתחלק ב־17!`;
+          container.style.backgroundColor = "lightgreen";
+        } else {
+          resultElem.innerText = `"${input}" לא מתחלק ב־17`;
+          container.style.backgroundColor = "lightcoral";
+        }
+
+        // Show result with animation
+        resultElem.classList.add("show");
+
+        // Clear result after 10 seconds
+        setTimeout(() => {
+          resultElem.classList.remove("show");
+          setTimeout(() => {
+            resultElem.innerText = "";
+          }, 500);
+        }, 9500);
+
+        // Reset container background color after 1 second
+        setTimeout(
+          () => (container.style.backgroundColor = "rgba(255, 255, 255, 0.3)"),
+          1000
+        );
+      }
+    </script>
+  </body>
+</html>
